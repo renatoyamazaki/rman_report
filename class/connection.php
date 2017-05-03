@@ -1,11 +1,10 @@
 <?php
 
 /**
-	Classe que contem tudo que e necessario para realizar a conexao com o BD
-	Como a aplicacao do rman_report utiliza conexoes com varias outras instancias target
-	E necessario serparar a logica da conexao com a aplicacao e com os targets
-	Ao construir o objeto sem parametros, a conexao sera realizada com a aplicacao.
-
+ *	Classe que contem tudo que e necessario para realizar a conexao com o BD
+ *	Como a aplicacao do rman_report utiliza conexoes com varias outras instancias target
+ *	E necessario serparar a logica da conexao com a aplicacao e com os targets
+ *	Ao construir o objeto sem parametros, a conexao sera realizada com a aplicacao.
  **/
 class conn {
 
@@ -16,10 +15,10 @@ class conn {
 	public $dbconn;
 
 	/**
-		Pode realizar 2 tipos de conexao 
-		- Com o servidor que possui os objetos da aplicacao
-		- Com o servidor target, que possui as informacoes a serem coletadas
-	**/
+	 *	Pode realizar 2 tipos de conexao 
+	 *	- Com o servidor que possui os objetos da aplicacao
+	 *	- Com o servidor target, que possui as informacoes a serem coletadas
+	 **/
 	function __construct ($server = NULL, $instance = NULL) {
 		
 		// Seta parametros de conexao
@@ -62,7 +61,7 @@ class conn {
 }
 
 /**
-	Possui um vetor com varios objetos de conexao 'conn'
+ *	Possui um vetor com varios objetos de conexao 'conn'
  **/
 class connSet {
 	
