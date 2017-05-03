@@ -1,0 +1,32 @@
+alter session set current_schema=USERNAME; 
+
+drop table rman_log purge;
+drop table ora_instance purge;
+
+create table ora_instance (    
+	"DBID" NUMBER NOT NULL ENABLE,
+        "HOSTNAME" VARCHAR2(10) NOT NULL ENABLE,
+        "APPLICATION" VARCHAR2(20),
+        "ENV" VARCHAR2(3),
+        "LAST_CHECK" DATE,
+        "ACTIVE" NUMBER(1,0) DEFAULT 1
+);
+
+create table rman_log (
+	"DBID" NUMBER,
+        "SESSION_RECID" NUMBER,
+        "STATUS" VARCHAR2(23),
+        "START_TIME" DATE,
+        "COMMAND_ID" VARCHAR2(33),
+        "LOG" CLOB,
+        "END_TIME" DATE,
+        "LOG_ERROR" CLOB,
+         PRIMARY KEY ("DBID", "SESSION_RECID", "START_TIME")
+         USING INDEX
+);
+
+alter table rman_log move lob (log) store as securefile compressed_log (compress high);
+alter table rman_log move lob (log_error) store as securefile compressed_log_error (compress high);
+
+
+

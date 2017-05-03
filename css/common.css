@@ -1,0 +1,104 @@
+* {	text-align: left; font: 12px Sans-Serif, Arial, Verdana, Tahoma; margin: 0; }
+
+b {font-weight: bold;}
+i {font-style: italic;}
+.center {text-align: center;}
+p { text-indent: 3em; margin: 0px 10px; }
+.red { color:red }
+h1 { margin: 0px 0px 20px 0px; text-align: center; color: #616D7E; font: bold 15px Sans-Serif, Arial, Verdana, Tahoma; }
+h2 { margin: 0px; text-align: center; color: #616D7E; font: 14px Sans-Serif, Arial, Verdana, Tahoma; }
+h3 { margin: 0px; text-align: center; color: #616D7E; font: 12px Sans-Serif, Arial, Verdana, Tahoma; }
+h4 { margin: 0px; text-align: center; color: #616D7E; font: 11px Sans-Serif, Arial, Verdana, Tahoma; }
+
+html, body { height: 100%; }
+
+#geral {
+	width: 1000px;
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	margin: 0 auto -34px;
+}
+
+#rodape, #push {
+	height: 32px;
+}
+
+#rodape {
+	border-top: 2px solid #808080;
+	background: #C0C0C0;
+	text-align: center;
+}
+
+#container {
+	width: 600px;
+	padding: 1px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	color: black;
+	border: 1px solid;
+}
+
+div.center {
+	margin-left: auto;
+	margin-right: auto;
+	width: 500px;
+
+
+}
+
+table#sortable {
+	border:1px solid #000;
+	border-spacing:0px;
+	border-collapse:collapse;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	width: 270px;
+}
+table#sortable td{
+	border:1px solid #D0D0D0;
+}
+table#sortable th.fixo{
+	width: 50px;
+}
+table#sortable tr td a {
+    display: block;
+    text-decoration: none;
+    color: black;
+}
+
+table tr td.b {
+	font-weight: bold;
+}
+
+table tr.green {
+	background-color: #00FF99;
+}
+
+table tr:hover td {
+	background:yellow;
+}
+table tr:hover td.red {
+	background:red;
+}
+table tr:hover td.lred {
+	background:#FF3300;
+}
+table th {
+	text-align: center;
+	border:1px solid #000;
+}
+table {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+td.dgreen {     background-color: #006a3d; }
+td.green {      background-color: #00a760; }
+td.lgreen {     background-color: #91ccb4; }
+td.red {        background-color: #db4137; }
+td.blue {       background-color: #3752db; }

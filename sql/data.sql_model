@@ -1,0 +1,9 @@
+alter session set current_schema = USERNAME;
+
+truncate table ora_instance;
+
+insert into ora_instance (dbid, hostname, application, env, active) values (99283123,'hostname01.example.com','SAP','DEV',1);
+insert into ora_instance (dbid, hostname, application, env, active) values (7463771331,'hostname02.example.com','SAP','PRD',1);
+insert into ora_instance (dbid, hostname, application, env, active) values (893444122,'hostname03.example.com','RMAN CATALOG','PRD',1);
+
+commit;
