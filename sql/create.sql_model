@@ -5,7 +5,8 @@ drop table ora_instance purge;
 
 create table ora_instance (    
 	"DBID" NUMBER NOT NULL ENABLE,
-        "HOSTNAME" VARCHAR2(10) NOT NULL ENABLE,
+        "HOSTNAME" VARCHAR2(50) NOT NULL ENABLE,
+        "INSTANCE" VARCHAR2(50) NOT NULL ENABLE,
         "APPLICATION" VARCHAR2(20),
         "ENV" VARCHAR2(3),
         "LAST_CHECK" DATE,
