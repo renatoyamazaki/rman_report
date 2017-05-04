@@ -9,7 +9,7 @@ This rman report utility makes use of a custom table.
 This custom table has information of the database: dbid, hostname, instance, application, environment and active.
 
 dbid|hostname|instance|application|environment|active
-------|--------|-------|-----------
+----|--------|--------|-----------|-----------|------
 18927333|hostname01|instanceA|SAP|dev|1
 45902394|hostname02|instanceX|CATALOG|prd|1
 
@@ -42,13 +42,16 @@ SQL> grant connect, select_catalog_role for rman_report;
 In this instance, we will create 2 tables (ora_instance and rman_log).
 The *ora_instance* table is a custom table populated manually.
 The *rman_log* table is populated through the report application.
-Go to the sql directory, edit the file 'create.sql' and execute in the
-chosen instance:
+Go to the sql directory, edit the first line on the file 'create_model.sql' 
+and execute in the chosen instance.
+Following this guide example, modify *USERNAME* to *rman_report* 
+on the file 'create_model.sql'
+Copy, paste and execute all the SQL in the create_model.sql in the choosen
+instance.
 
 ```
 $ cd sql
-$ vim create.sql
-SQL> @create.sql
+$ vim create_model.sql
 ```
 
 ## PHP
