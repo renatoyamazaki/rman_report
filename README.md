@@ -6,12 +6,12 @@ Simple report application for rman backups
 # How does it work?
 
 This rman report utility makes use of a custom table. 
-This custom table has information of the database: server, instance, purpose and environment:
+This custom table has information of the database: dbid, hostname, instance, application, environment and active.
 
-server|instance|purpose|environment
+dbid|hostname|instance|application|environment|active
 ------|--------|-------|-----------
-hostname01|instanceA|SAP|dev
-hostname02|instanceX|CATALOG|prd
+18927333|hostname01|instanceA|SAP|dev|1
+45902394|hostname02|instanceX|CATALOG|prd|1
 
 # What do you need
 * A web server with PHP and OCI configured
@@ -20,7 +20,7 @@ hostname02|instanceX|CATALOG|prd
 
 ## Database
 
-### User
+### User (Execute in all target instances)
 
 * Create a separate user for this report in all the target instances. 
 In this guide, the user will be called 'rman\_report' and the password will 
@@ -36,7 +36,7 @@ SQL> create user rman_report identified by "passreport";
 SQL> grant connect, select_catalog_role for rman_report;
 ```
 
-### Objects creation (tables)
+### Objects creation (Execute in only one instance)
 
 * Choose one of the oracle instances for use in this rman_report.
 In this instance, we will create 2 tables (ora_instance and rman_log).
