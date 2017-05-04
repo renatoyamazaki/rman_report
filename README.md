@@ -36,18 +36,18 @@ SQL> create user rman_report identified by "passreport";
 SQL> grant connect, select_catalog_role for rman_report;
 ```
 
-### Objects creation (tables and dblink)
+### Objects creation (tables)
 
-* Go to the sql directory, and edit the file 'create.sql':
+* Choose one of the oracle instances for use in this rman_report.
+In this instance, we will create 2 tables (ora_instance and rman_log).
+The *ora_instance* table is a custom table populated manually.
+The *rman_log* table is populated through the report application.
+Go to the sql directory, edit the file 'create.sql' and execute in the
+chosen instance:
 
 ```
 $ cd sql
 $ vim create.sql
-```
-
-* Create database objects on the instance:
-
-```
 SQL> @create.sql
 ```
 
