@@ -29,12 +29,11 @@
 
 	// Conecta na base de catalogo, retirando as informacoes que sao pertinentes
 	$catalogo = new conn();
-	$stmt = oci_parse($catalogo->dbconn, "select a.hostname, b.name, a.dbid, a.application, a.env, to_char(a.last_check, 'DD/MM/YYYY HH24:MI:SS') as last_check from ora_instance a, rman.rc_database@catrman b where a.dbid = b.dbid order by a.application, a.hostname");
+	$stmt = oci_parse($catalogo->dbconn, "select a.hostname, a.instance, a.dbid, a.application, a.env, to_char(a.last_check, 'DD/MM/YYYY HH24:MI:SS') as last_check from ora_instance a order by a.application, a.hostname");
 	oci_execute($stmt, OCI_DEFAULT);
 	// Adiciona cada database encontrada no catalogo no objeto da classe dbSet
 	while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false) 
-		$databases->addInstance($row['HOSTNAME'], $row['NAME'], $row['DBID'], $row['APPLICATION'], $row['ENV'], $row['LAST_CHECK'] );
-	
+		$databases->addInstance($row['HOSTNAME'], $row['INSTANCE'], $row['DBID'], $row['APPLICATION'], $row['ENV'], $row['LAST_CHECK'] );
 	// Insere informacoes do catalogo no objeto da classe 'dbInfo'
 	$infos->getDbInfoCatalog($catalogo, $databases, $dt_rman);
 

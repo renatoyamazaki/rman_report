@@ -13,12 +13,12 @@
 
 
 		$catalogo = new conn();
-		$stmt = oci_parse($catalogo->dbconn, "select a.hostname, b.name, a.dbid, a.application, a.env, to_char(a.last_check, 'DD/MM/YYYY HH24:MI:SS') as last_check from ora_instance a, rman.rc_database@catrman b where a.dbid = b.dbid and a.dbid = $dbid");
+		$stmt = oci_parse($catalogo->dbconn, "select a.hostname, a.instance, a.dbid, a.application, a.env, to_char(a.last_check, 'DD/MM/YYYY HH24:MI:SS') as last_check from ora_instance a where a.dbid = $dbid");
 		oci_execute($stmt, OCI_DEFAULT);
 
 		// adiciona cada database encontrada no catalogo no objeto da classe dbSet
 		while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false) 
-			$databases->addInstance($row['HOSTNAME'], $row['NAME'], $row['DBID'], $row['APPLICATION'], $row['ENV'], $row['LAST_CHECK'] );
+			$databases->addInstance($row['HOSTNAME'], $row['INSTANCE'], $row['DBID'], $row['APPLICATION'], $row['ENV'], $row['LAST_CHECK'] );
 
 
 		// realiza conexoes com todas as instancias encontradas no catalogo

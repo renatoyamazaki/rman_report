@@ -265,7 +265,7 @@ class dbInfo {
 
 	function printDetail ($catalog, $dbid, $sessionrecid) {
 		
-		$SQL = "select c.name as instance, b.hostname, b.application, b.env, a.status, to_char(a.start_time, 'DD/MM/YYYY HH24:MI:SS') as timestart, to_char(a.end_time, 'DD/MM/YYYY HH24:MI:SS') as timeend, a.command_id, a.log from rman_log a, ora_instance b, rman.rc_database@catrman c where a.dbid = b.dbid and a.dbid = c.dbid and a.dbid = $dbid and a.session_recid = $sessionrecid"; 
+		$SQL = "select b.instance, b.hostname, b.application, b.env, a.status, to_char(a.start_time, 'DD/MM/YYYY HH24:MI:SS') as timestart, to_char(a.end_time, 'DD/MM/YYYY HH24:MI:SS') as timeend, a.command_id, a.log from rman_log a, ora_instance b where a.dbid = b.dbid and a.dbid = $dbid and a.session_recid = $sessionrecid"; 
 		$stmt = oci_parse($catalog->dbconn, $SQL);
 		oci_execute($stmt, OCI_DEFAULT);
 		$row = oci_fetch_array($stmt, OCI_BOTH);

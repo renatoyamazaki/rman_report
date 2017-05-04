@@ -6,12 +6,11 @@ Simple report application for rman backups
 # How does it work?
 
 Almost every rman backup uses a recovery catalog.
-This rman report utility makes use of the recovery catalog plus a custom table. 
-This custom table has information of the instances server, purpose and environment.
+This rman report utility makes use of a custom table. 
+This custom table has information of the database: server, instance, purpose and environment.
 
 # What do you need
 * A web server with PHP and OCI configured
-* RMAN Catalog
 
 # Instructions
 
@@ -28,12 +27,6 @@ SQL> create user rman_report identified by "passreport";
 * Grant 'connect' and 'select_catalog_role' for this user:
 
 SQL> grant connect, select_catalog_role for rman_report;
-
-* ONLY in the RMAN catalog instance, grant 'EXEMPT ACCESS POLICY' 
-and 'select on rman.rc_database' for this user:
-
-SQL> grant exempt_access_policy to rman_report;
-SQL> grant select on rman.rc_database to rman_report;
 
 ### Objects creation (tables and dblink)
 
