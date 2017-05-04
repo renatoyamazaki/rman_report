@@ -40,19 +40,30 @@ SQL> grant connect, select_catalog_role for rman_report;
 
 * Choose one of the oracle instances for use in this rman_report.
 In this instance, we will create 2 tables (ora_instance and rman_log).
-The *ora_instance* table is a custom table populated manually.
-The *rman_log* table is populated through the report application.
-Go to the sql directory, edit the first line on the file 'create_model.sql' 
+The **ora_instance** table is a custom table populated manually.
+The **rman_log** table is populated through the report application.
+Edit the first line on the file *'sql/create.sql_model'* 
 and execute in the chosen instance.
 Following this guide example, modify *USERNAME* to *rman_report* 
-on the file 'create_model.sql'
-Copy, paste and execute all the SQL in the create_model.sql in the choosen
-instance.
+on the file *'sql/create.sql_model'*
+Copy, paste and execute all the SQL in the choosen instance.
 
 ```
 $ cd sql
 $ vim create_model.sql
 ```
+
+### Instance 
+
+* Populate the table **ora_instance** with the info of the target instances.
+You can see a model in the file *'sql/data.sql_model'*. For example:
+
+```
+SQL> alter session set current_schema = rman_report;
+SQL> insert into ora_instance (dbid, hostname, application, env, active) values (99283123,'hostname01.example.com', 'instance01', 'SAP','DEV',1);
+SQL> commit;
+```
+
 
 ## PHP
 
