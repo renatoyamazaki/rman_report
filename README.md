@@ -15,6 +15,8 @@ dbid|hostname|instance|application|environment|active
 
 # What do you need
 * A web server with PHP and OCI configured
+* An oracle instance for use in this application
+* Add some lines in your rman backup script
 
 # Instructions
 
@@ -78,3 +80,23 @@ $ mv db.php_model db.php
 ```
 $ vim db.php 
 ```
+
+
+## RMAN Script
+
+* In your rman script add the tags 'level0', 'level1' or 'level2' 
+depending on the type of the backup.
+
+```
+set command id to 'TAG';
+```
+
+* At the end of your script, add a url get requisition for the application. For example:
+
+```
+DBID=$(grep DBID $BKP_LOG | awk '{print $6}' | cut -d \= -f2 | cut -d \) -f1)
+wget "http://webapp/rman_update.php?dbid=$DBID" -O - > /dev/null 2> /dev/null
+```
+
+
+
