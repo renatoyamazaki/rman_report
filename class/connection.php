@@ -39,16 +39,12 @@ class conn {
 			$tns = "(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = ".$this->serv.")(PORT = 1521)))(CONNECT_DATA=(SERVICE_NAME=".$this->inst."))) ";
 		else
 			$tns = "(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = ".$this->serv.")(PORT = 1523)))(CONNECT_DATA=(SERVICE_NAME=".$this->inst."))) ";
-		try {
-			$this->dbconn = @oci_connect($this->user, $this->pass, $tns);
-		}
-		catch (PDOException $e) {
-			echo "=======================";
-			echo "$hostname / $instance";
-			echo $e->getMessage();
-			echo "=======================";
-			exit ();
-		}
+		
+		$this->dbconn = @oci_connect($this->user, $this->pass, $tns);
+
+		if (!$this->dbconn) {
+			echo "Erro na conexão com o Oracle, verifique parametros.";
+                }
 
 	}
 
