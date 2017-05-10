@@ -39,7 +39,7 @@ class conn {
 			$this->inst = $instance;
 		}
 		
-		// Construct the tns connection, threat exceptions like different listening port here
+		// Construct the tns connection, treat exception like different listening port here
 		if ($instance != 'PAR')
 			$tns = "(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = ".$this->serv.")(PORT = 1521)))(CONNECT_DATA=(SERVICE_NAME=".$this->inst."))) ";
 		else
@@ -82,9 +82,20 @@ class connSet {
 	 * @return	bool	TRUE if all the connections where made sucessfully
 	 */
 	function __construct ($dbSet) {
+		$error_count = 0;
+
 		foreach ($dbSet->dbInstArray as $dia) {
-			$this->connArray[$dia->dbid] = new conn ($dia->hostname, $dia->instance);
+			$c = new conn ($dia->hostname, $dia->instance);
+			if (!is_bool($c))
+				$this->connArray[$dia->dbid] = $c;
+			else
+				$error_count++;
 		}
+
+		if ($error_count == 0)
+			return true;
+		else
+			return false;
 	}
 
 	function __destruct () {
