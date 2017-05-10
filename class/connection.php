@@ -1,10 +1,12 @@
 <?php
 
 /**
- *	Classe que contem tudo que e necessario para realizar a conexao com o BD
- *	Como a aplicacao do rman_report utiliza conexoes com varias outras instancias target
- *	E necessario serparar a logica da conexao com a aplicacao e com os targets
- *	Ao construir o objeto sem parametros, a conexao sera realizada com a aplicacao.
+ * Connection Class
+ *
+ * This class enables connection with the oracle instance.
+ * The 'rman_report' application uses one connection with each target instance.
+ * If you don't specify parameters in the creation of the object, it will connect with 
+ * the application database, that is configured in the 'config/db.php' file. 
  **/
 class conn {
 
@@ -15,39 +17,45 @@ class conn {
 	public $dbconn;
 
 	/**
-	 *	Pode realizar 2 tipos de conexao 
-	 *	- Com o servidor que possui os objetos da aplicacao
-	 *	- Com o servidor target, que possui as informacoes a serem coletadas
+	 * Class constructor
+	 *
+	 * Can make 2 types of connection:
+	 * - With the instance that have the application objects
+	 * - With the target instance, that have all the information to be collected
+	 *
+	 * @param	string 	$server		Server name
+	 * @param	string 	$instance	Instance name	
+	 * @return	bool	TRUE if the connection was sucessfull, FALSE otherwise
 	 **/
 	function __construct ($server = NULL, $instance = NULL) {
 		
-		// Seta parametros de conexao
-		// Conexao para usuario da aplicacao
+		// Verify if the server name was passed throught parameters
 		if ( $server === NULL ) {	
 			$this->serv = SERVER;
 			$this->inst = INSTANCE;
 		} 
-		// Caso seja conexao com os targets
 		else {
 			$this->serv = $server;
 			$this->inst = $instance;
 		}
-
-		// Realiza a conexao
-		// Armazena a conexao na variavel dbconn		
+		
+		// Construct the tns connection, threat exceptions like different listening port here
 		if ($instance != 'PAR')
 			$tns = "(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = ".$this->serv.")(PORT = 1521)))(CONNECT_DATA=(SERVICE_NAME=".$this->inst."))) ";
 		else
 			$tns = "(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = ".$this->serv.")(PORT = 1523)))(CONNECT_DATA=(SERVICE_NAME=".$this->inst."))) ";
 		
+		// Makes the connection, store the resource returned by oci_connect on dbconn
 		$this->dbconn = @oci_connect($this->user, $this->pass, $tns);
 
+		// If there was an error at the connection
 		if (!$this->dbconn) {
 			echo "Erro na conexão com o Oracle, verifique parametros.";
+			return FALSE;
                 }
-
+		
+		return TRUE;
 	}
-
 
 	function __destruct () {
 		$this->dbconn = NULL;
@@ -57,15 +65,26 @@ class conn {
 }
 
 /**
- *	Possui um vetor com varios objetos de conexao 'conn'
- **/
+ * Connection Set Class
+ * 
+ * This class stores an array of 'Connection Class' objects.
+ * The array is indexed by the dbid from the instance, providing fast access to the connection
+ * needed.
+ */
 class connSet {
 	
 	public $connArray = array();
 
+	/**
+	 * Class constructor
+	 * 
+	 * @param	object	$dbSet		'Database' object
+	 * @return	bool	TRUE if all the connections where made sucessfully
+	 */
 	function __construct ($dbSet) {
-		foreach ($dbSet->dbInstArray as $dia) 
+		foreach ($dbSet->dbInstArray as $dia) {
 			$this->connArray[$dia->dbid] = new conn ($dia->hostname, $dia->instance);
+		}
 	}
 
 	function __destruct () {
