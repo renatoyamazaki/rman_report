@@ -223,13 +223,16 @@ class dbInfo {
 		
 		while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false) {
 			$dbid = $row['DBID'];
-			if (array_key_exists($dbid, $this->rmanInfoSetArray))
-				$this->rmanInfoSetArray[$dbid]->addRmanInfo($row['SESSION_RECID'], $row['STATUS'], $row['TIMESTART'], $row['TIMEEND'], $row['COMMAND_ID']);
-			else {
-				$this->rmanInfoSetArray[$dbid] = new rmanInfoSet();
-				$this->rmanInfoSetArray[$dbid]->addRmanInfo($row['SESSION_RECID'], $row['STATUS'], $row['TIMESTART'], $row['TIMEEND'], $row['COMMAND_ID']);
+                        // caso seja uma das instancias que ja estao no objeto 'databases'
+                        if (array_key_exists($dbid, $databases->dbInstArray)) {
+				if (array_key_exists($dbid, $this->rmanInfoSetArray))
+					$this->rmanInfoSetArray[$dbid]->addRmanInfo($row['SESSION_RECID'], $row['STATUS'], $row['TIMESTART'], $row['TIMEEND'], $row['COMMAND_ID']);
+				else {
+					$this->rmanInfoSetArray[$dbid] = new rmanInfoSet();
+					$this->rmanInfoSetArray[$dbid]->addRmanInfo($row['SESSION_RECID'], $row['STATUS'], $row['TIMESTART'], $row['TIMEEND'], $row['COMMAND_ID']);
+				}
+				$this->rmanInfoSetArray[$dbid]->countObj();
 			}
-			$this->rmanInfoSetArray[$dbid]->countObj();
 		}
 
 		$this->countMax();
