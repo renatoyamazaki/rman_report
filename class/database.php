@@ -1,8 +1,11 @@
 <?php
 
 /**
-	Classe responsavel por informacoes gerais de instancias oracle
- **/
+ * Database Class
+ * 
+ * This class stores information of an oracle instance.
+ *
+ */
 class dbInst {
 	
 	public $dbid;
@@ -12,6 +15,17 @@ class dbInst {
 	public $env;
 	public $last_check;
 
+	/**
+	 * Class constructor
+	 *
+	 * @param	string	$dbid		DBID of the instance
+	 * @param	string	$hostname	Server name
+	 * @param	string	$instance	Instance name
+	 * @param	string	$application	Short description of the instance
+	 * @param	string	$env		Environment (production, development, ...)
+	 * @param	string	$last_check	Last check of the 'rman_report' application
+	 * @return	void
+	 */
 	function __construct ($dbid, $hostname, $instance, $application, $env, $last_check) {
 		$this->dbid = $dbid;
 		$this->hostname = $hostname;
@@ -24,6 +38,12 @@ class dbInst {
 	function __destruct () {
 	}
 
+	/**
+	 * Update last_check
+	 *
+	 * @param	string	$last_check	Last check of the 'rman_report' application
+	 * @return	void
+	 */
 	function upLastCheck ($last_check) {
 		$this->last_check = $last_check;
 	}
