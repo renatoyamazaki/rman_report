@@ -50,23 +50,38 @@ class dbInst {
 }
 
 /**
-	Conjunto de objetos 'dbInst'
- **/
+ * Database Set Class
+ *
+ * This class stores an array of 'Database Class' objects.
+ * The array is indexed by the dbid from the instance.
+ *
+ */
 class dbSet {
 
-	// vetor com todos os BDs encontrados no catalogo rman
 	public $dbInstArray = array();
 
-	function __construct () {
-	}
-	
-	function __destruct () {
-	}
-
+	/**
+	 * Add a instance in the array of 'Database' objects
+	 *
+	 * @param	string	$hostname	Server name	
+	 * @param	string	$instance	Instance name
+	 * @param	string	$dbid		DBID of the instance
+	 * @param	string	$application	Short description of the instance
+	 * @param	string	$env		Environment (production, development, ...)
+	 * @param	string	$last_check	Last check of the 'rman_report' application
+	 * @return	void
+	 */
 	function addInstance ($hostname, $instance, $dbid, $application, $env, $last_check) {
 		$this->dbInstArray[$dbid] = new dbInst($dbid, $hostname, $instance, $application, $env, $last_check);
 	}
 	
+	/**
+	 * Update last_check of an instance
+	 *
+	 * @param	string	$dbid		DBID of the instance
+	 * @param	string	$last_check	Last check of the 'rman_report' application
+	 * @return	void
+	 */
 	function upInstanceLC ($dbid, $last_check) {
 		$this->dbInstArray[$dbid]->upLastCheck($last_check);
 	}
