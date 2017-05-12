@@ -8,8 +8,10 @@
 	require_once "config/db.php";
 
 	/**
+	 * Returns the dbid from the instance
 	 *
-	 *
+	 * @param	$conn	object	Connection
+	 * @return	$dbid	integer	DBID from the instance
 	 */
 	function get_dbid ($conn) {
 
@@ -22,8 +24,11 @@
 	}
 
 	/**
+	 * Verify if the instance is already registered in the ora_instance table
 	 *
-	 *
+	 * @param	$conn	object	Connection
+	 * @param	$dbid	integer DBID from the instance
+	 * @return	bool	TRUE if the instance is already registered, FALSE otherwise	
 	 */
 	function verify_registered_dbid ($conn, $dbid) {
 	
@@ -41,8 +46,15 @@
 	
 
 	/**
+	 * Register the instance
 	 *
-	 *
+	 * @param	$conn		object	Connection
+	 * @param	$dbid		integer	DBID from the instance
+	 * @param	$server		string	Server name
+	 * @param	$instance	string	Instance name
+	 * @param	$application	string	Short description of the instance
+	 * @param	$env		string	Environment (production, development, ...)
+	 * @return	bool		TRUE if registered with sucess, FALSE otherwise
 	 */
 	function register_instance ($conn, $dbid, $server, $instance, $application, $env) {
 
@@ -67,15 +79,21 @@
 			return true;
 	}
 
+	/**
+	 * Collects RMAN logs from the instance
+	 * Redirects the browser to the update url of the application, 
+	 * updating the info from the instance referenced by the dbid.
+	 *
+	 * @param	$dbid	integer		DBID from the instance
+	 * @return 	void
+	 */
 	function collect_logs ($dbid) {
 		echo "Coletando logs do rman na instância cadastrada";		
 		header("Refresh:0; url=rman_update.php?dbid=$dbid");
 	}
 
 
-	/**
-	 * Parameters (POST)
-	 */
+	// Parameters (POST)
 
 	// Verify the required fields
 	if ( isset($_POST['server']) && isset($_POST['instance']) ) {
@@ -93,23 +111,23 @@
 			$dbid = get_dbid ($connTarget);
 			// Connection with the catalog
 			try {
-				$catalog = new conn();			
+				$catalog = new conn();
 				// Verify if its already registered
 				if (! verify_registered_dbid($catalog, $dbid)) {
 					if (register_instance($catalog, $dbid, $server, $instance, $application, $env))
 						collect_logs($dbid);
 				}
 				else
-					echo "Instância já foi registrada.";					
+					echo "Instância já foi registrada. <br/>";
 			} catch (Exception $e) {
 				echo $e->getMessage();
-				echo "Conexão com o catálogo falhou."; 	
+				echo "Conexão com o catálogo falhou. <br/>";
 			}
 		} catch (Exception $e) {
-			echo $e->getMessage();
+			echo $e->getMessage() . "<br/>";
 			echo "Crie o usuário " . USERNAME . " no servidor " . $server . ", instancia " . $instance . "<br/>";
 			echo "SQL> create user " . USERNAME . " identified by ..... <br/>";
-			echo "SQL> grant connect, select_catalog_role to " . USERNAME . ";" ; 
+			echo "SQL> grant connect, select_catalog_role to " . USERNAME . "; <br/>";
 		}
 	}
 	else {
@@ -157,7 +175,7 @@
 
                                 <div class="pure-control-group">
                                         <label for="application">Aplicação</label>
-                                        <input name="application" type="text">
+                                        <input name="application" type="text" required>
                                 </div>
 
                                 <div class="pure-control-group">
