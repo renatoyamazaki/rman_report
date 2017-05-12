@@ -1,4 +1,9 @@
 <?php
+	// No browser cache
+	header('Cache-Control: no-cache, no-store, must-revalidate');
+	header('Pragma: no-cache');
+	header('Expires: 0');
+
 	require_once "class/connection.php";
 	require_once "config/db.php";
 
@@ -63,9 +68,8 @@
 	}
 
 	function collect_logs ($dbid) {
-		$dt = date('Y-m-d_H:i:s');
 		echo "Coletando logs do rman na instância cadastrada";		
-		header("Refresh:0; url=rman_update.php?dbid=$dbid&dt=$dt");
+		header("Refresh:0; url=rman_update.php?dbid=$dbid");
 	}
 
 
@@ -158,7 +162,8 @@
 
                                 <div class="pure-control-group">
                                         <label for="env">Ambiente</label>
-			                <select id="env" class="pure-input-1-8">
+			                <select name="env" class="pure-input-1-8" required>
+						<option></option>
 						<option>DEV</option>
 						<option>QAS</option>
 						<option>PRD</option>

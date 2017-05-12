@@ -1,5 +1,9 @@
 <?php
-	
+	// No browser cache
+	header('Cache-Control: no-cache, no-store, must-revalidate');
+	header('Pragma: no-cache');
+	header('Expires: 0');
+
 	require_once "class/connection.php";
 	require_once "config/db.php";
 	require_once "class/rmaninfo.php";
