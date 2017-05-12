@@ -25,7 +25,6 @@ class conn {
 	 *
 	 * @param	string 	$server		Server name
 	 * @param	string 	$instance	Instance name	
-	 * @return	bool	TRUE if the connection was sucessfull, FALSE otherwise
 	 **/
 	function __construct ($server = NULL, $instance = NULL) {
 		
@@ -49,12 +48,9 @@ class conn {
 		$this->dbconn = @oci_connect($this->user, $this->pass, $tns);
 
 		// If there was an error at the connection
-		if (!$this->dbconn) {
-			echo "Erro na conexão com o Oracle, verifique parametros.";
-			return FALSE;
-                }
+		if (!$this->dbconn)
+			throw new Exception ("Erro na conexão com o Oracle, verifique parametros.");            
 		
-		return TRUE;
 	}
 
 	function __destruct () {
@@ -79,7 +75,6 @@ class connSet {
 	 * Class constructor
 	 * 
 	 * @param	object	$dbSet		'Database' object
-	 * @return	bool	TRUE if all the connections where made sucessfully
 	 */
 	function __construct ($dbSet) {
 		$error_count = 0;
@@ -92,9 +87,7 @@ class connSet {
 				$error_count++;
 		}
 
-		if ($error_count == 0)
-			return true;
-		else
+		if ($error_count <> 0)		// AJUSTAR
 			return false;
 	}
 
