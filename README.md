@@ -15,52 +15,49 @@ Simple report application for rman backups
 
 * Create a separate user for this report in all the target instances. 
 In this guide, the user will be called 'rman\_report' and the password will 
-be 'passreport'. Grant 'connect' and 'select_catalog_role' for this user:
+be 'passreport'. Grant 'connect' and 'select\_catalog\_role' for this user:
 
 ```
 SQL> create user rman_report identified by "passreport";
-SQL> grant connect, select_catalog_role for rman_report;
+SQL> grant connect, select_catalog_role to rman_report;
 ```
 
 ### Objects creation / data insert (Execute in only one instance)
 
-* Create a separate tablespace for this user. Optional but recommended:
+* Choose one of the oracle instances for use in this rman_report.
+In this instance, create a separate tablespace for this user.
 ```
 SQL> create tablespace rman_report_tabspc datafile '...' size 100M autoextend on;
 SQL> alter user rman_report quota unlimited on rman_report_tabspc;
-```
-
-* Choose one of the oracle instances for use in this rman_report.
-In this instance, we will create 2 tables (ora_instance and rman_log).
-The **ora_instance** table is a custom table populated manually.
-The **rman_log** table is populated through the report application.
-Edit the first line on the file *'sql/create.sql_model'* 
-and execute in the chosen instance.
-Following this guide example, modify *USERNAME* to *rman_report* 
-on the file *'sql/create.sql_model'*
-Copy, paste and execute all the SQL in the choosen instance.
-
-```
-$ cd sql
-$ vim create_model.sql
+SQL> grant create table to rman_report;
 ```
 
 ## PHP
 
-* Go to the config directory, and rename the db.php_model to db.php:
-
+* Get the latest source php code from git
 ```
-$ cd config
-$ mv db.php_model db.php
+$ git clone https://github.com/renatoyamazaki/rman_report.git
 ```
 
-* Edit the db.php for with the database credentials of the choosen instance:
-
+* Move the source code dir to an http directory (for example /var/www/html/).
+Depends in what configuration you have of your apache, nginx, etc.
 ```
-$ vim db.php 
+$ mv rman_report /var/www/html/
 ```
 
-* Go to the URL that was configured, and register all the target instances:
+* Change the 'config' dir permissions to 777. The install script will put a db.php 
+file in this directory.
+```
+$ cd rman_report
+$ chmod 777 config
+```
+
+* Go to the install.php url, and put the details of the db connection. For example:
+```
+http://webapp.example.com/config/install.php
+```
+
+* Register all the target instances:
 
 ```
 http://webapp.example.com/add_instance.php
@@ -80,6 +77,3 @@ set command id to 'TAG';
 ```
 wget "http://webapp.example.com/rman_update.php?dbid=$DBID" -O - > /dev/null 2> /dev/null
 ```
-
-
-
