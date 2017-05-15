@@ -89,7 +89,7 @@
 	 */
 	function collect_logs ($dbid) {
 		echo "Coletando logs do rman na instância cadastrada";		
-		header("Refresh:0; url=rman_update.php?dbid=$dbid");
+		header("Refresh:0; url=../rman_update.php?dbid=$dbid");
 	}
 
 
