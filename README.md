@@ -29,6 +29,7 @@ In this instance, create a separate tablespace for this user.
 ```
 SQL> create tablespace rman_report_tabspc datafile '...' size 100M autoextend on;
 SQL> alter user rman_report quota unlimited on rman_report_tabspc;
+SQL> alter user rman_report default tablespace rman_report_tabspc;
 SQL> grant create table to rman_report;
 ```
 
