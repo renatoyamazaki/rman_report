@@ -12,8 +12,8 @@ class conn {
 
 	private $serv;
 	private $inst;
-	private $user = USERNAME;
-	private $pass = PASSWORD;
+	private $user;
+	private $pass;
 	public $dbconn;
 
 	/**
@@ -25,17 +25,31 @@ class conn {
 	 *
 	 * @param	string 	$server		Server name
 	 * @param	string 	$instance	Instance name	
+	 * @param	string	$username	DB Username
+	 * @param	string	$password	DB Password
 	 **/
-	function __construct ($server = NULL, $instance = NULL) {
+	function __construct ($server = NULL, $instance = NULL, $username = NULL, $password = NULL) {
 		
 		// Verify if the server name was passed throught parameters
 		if ( $server === NULL ) {	
 			$this->serv = SERVER;
 			$this->inst = INSTANCE;
-		} 
+			$this->user = USERNAME;
+			$this->pass = PASSWORD;
+		}
 		else {
-			$this->serv = $server;
-			$this->inst = $instance;
+			if ($username === NULL) {
+				$this->serv = $server;
+				$this->inst = $instance;
+				$this->user = USERNAME;
+				$this->pass = PASSWORD;
+			}
+			else {
+				$this->serv = $server;
+				$this->inst = $instance;
+				$this->user = $username;
+				$this->pass = $password;			
+			}
 		}
 		
 		// Construct the tns connection, treat exception like different listening port here
