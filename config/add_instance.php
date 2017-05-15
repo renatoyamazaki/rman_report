@@ -4,8 +4,8 @@
 	header('Pragma: no-cache');
 	header('Expires: 0');
 
-	require_once "class/connection.php";
-	require_once "config/db.php";
+	require_once "../class/connection.php";
+	require_once "db.php";
 
 	/**
 	 * Returns the dbid from the instance
@@ -143,8 +143,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- CSS -->
-<link rel="stylesheet" href="css/pure-min.css" />
-<link rel="stylesheet" href="css/side-menu.css" />
+<link rel="stylesheet" href="../css/pure-min.css" />
+<link rel="stylesheet" href="../css/side-menu.css" />
 </head>
 
 
