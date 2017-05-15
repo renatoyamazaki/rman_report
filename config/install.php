@@ -2,18 +2,19 @@
 
 	$configFile = "db2.php";
 
-	try {
-		if ( !file_exists($configFile) ) {
-			throw new Exception('Aruivo não existe. criando');
+	if ( !file_exists($configFile) ) {
+
+		try {
+			$fp = fopen($configFile, "a");
+			if ( !$fp ) {
+				throw new Exception('Erro ao criar arquivo.');
+			}
+			else {
+				echo "arquivo criado";
+
+			}
+		} catch (Exception $e) {
+			echo "Exception occured";
 		}
-		
-//		$fp = fopen($fileName, "r");
-//		if ( !$fp ) {
-//			throw new Exception('Erro ao abrir arquivo.');
-//		}
-		
-				
-	} catch (Exception $e) {
-		echo "Exception occured";
 	}
 ?>
