@@ -2,6 +2,8 @@
 
 Simple report application for rman backups
 
+![Report](https://cloud.githubusercontent.com/assets/28349040/26071711/601fb8a8-397f-11e7-8ee8-eb57b371f01c.png)
+
 # What do you need
 * A web server with PHP and OCI configured
 * An oracle instance for use in this application
@@ -61,7 +63,7 @@ http://webapp.example.com/config/install.php
 * Register all the target instances:
 
 ```
-http://webapp.example.com/add_instance.php
+http://webapp.example.com/config/add_instance.php
 ```
 
 ## RMAN Script
@@ -76,5 +78,5 @@ set command id to 'TAG';
 * At the end of your script, add a url get requisition for the application. For example:
 
 ```
-wget "http://webapp.example.com/rman_update.php?dbid=$DBID" -O - > /dev/null 2> /dev/null
+wget "http://webapp.example.com/rman_update.php?dbid=$DBID" -O - > /dev/null 2>&1
 ```
