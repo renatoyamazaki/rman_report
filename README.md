@@ -57,13 +57,13 @@ $ chmod 777 config
 
 * Go to the install.php url, and put the details of the db connection. For example:
 ```
-http://webapp.example.com/config/install.php
+http://SERVER_IP/config/install.php
 ```
 
 * Register all the target instances:
 
 ```
-http://webapp.example.com/config/add_instance.php
+http://SERVER_IP/config/add_instance.php
 ```
 
 ## RMAN Script
@@ -78,5 +78,5 @@ set command id to 'TAG';
 * At the end of your script, add a url get requisition for the application. For example:
 
 ```
-wget "http://webapp.example.com/rman_update.php?dbid=$DBID" -O - > /dev/null 2>&1
+wget "http://SERVER_IP/rman_update.php?dbid=$DBID" -O - > /dev/null 2>&1
 ```
