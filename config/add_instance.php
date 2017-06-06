@@ -97,13 +97,13 @@
 
 	// Verify the required fields
 	if ( isset($_POST['server']) && isset($_POST['instance']) ) {
-		$server = $_POST['server'];
-		$instance = $_POST['instance'];
+		$server = strtoupper($_POST['server']);
+		$instance = strtoupper($_POST['instance']);
 		// Optional fields
 		if ( isset($_POST['application']) )
-			$application = $_POST['application'];
+			$application = strtoupper($_POST['application']);
 		if ( isset($_POST['env']) )
-			$env = $_POST['env'];
+			$env = strtoupper($_POST['env']);
 
 		// Validate the connection with the instance
 		try {
@@ -141,10 +141,9 @@
 <title>DB Inventory</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- CSS -->
-<link rel="stylesheet" href="../css/pure-min.css" />
-<link rel="stylesheet" href="../css/side-menu.css" />
+<?php
+	 require_once $_SERVER['DOCUMENT_ROOT'] . "/include/html/header.php";
+?>
 </head>
 
 
@@ -152,6 +151,10 @@
 
 
 <div id="layout">
+
+<?php
+        require_once $_SERVER['DOCUMENT_ROOT'] . "/include/html/menu.php";
+?>
 
         <div id="main">
                 <div class="header">
