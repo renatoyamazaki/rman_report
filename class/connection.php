@@ -59,7 +59,7 @@ class conn {
 			$tns = "(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = ".$this->serv.")(PORT = 1523)))(CONNECT_DATA=(SERVICE_NAME=".$this->inst."))) ";
 		
 		// Makes the connection, store the resource returned by oci_connect on dbconn
-		$this->dbconn = @oci_connect($this->user, $this->pass, $tns);
+		$this->dbconn = @oci_connect($this->user, $this->pass, $tns, 'WE8ISO8859P1');
 
 		// If there was an error at the connection
 		if (!$this->dbconn)
