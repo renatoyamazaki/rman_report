@@ -8,7 +8,7 @@
             <a class="pure-menu-heading" href="">ORACLE</a>
 
             <ul class="pure-menu-list">
-                <li class="pure-menu-item"><a href="/ora/config/add_instance.php" class="pure-menu-link">Add instance</a></li>
+                <li class="pure-menu-item"><a href="/ora/add_instance.php" class="pure-menu-link">Add instance</a></li>
                 <li class="pure-menu-item"><a href="/ora/teste2.php" class="pure-menu-link">Checklist</a></li>
                 <li class="pure-menu-item"><a href="/ora/rman_report.php" class="pure-menu-link">RMAN Report</a></li>
             </ul>
