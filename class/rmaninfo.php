@@ -312,7 +312,7 @@ class dbInfo {
 		
 		///////////////////////////////////////////////////////////////
 
-		echo "<table id='sortable' border='1'>\n";
+		echo "<table id='report' border='1'>\n";
 		echo "<tr> <th><b>UPDATE</b></th> <th><b>ENV</b></th> <th><b>SYSTEM</b></th> <th><b>HOST</b></th> <th><b>INSTANCE</b></th> <th><b>DBID</b></th>";
 
 		for ($i = 1 ; $i<= $this->countObjMax ; $i++)
@@ -368,8 +368,8 @@ class dbInfo {
 
 		echo "</table>\n";
 
-		echo "<table>";
-		echo "<tr><th colspan=2> Legenda</th></tr>";
+		echo "<table id='legend'>";
+		echo "<tr><th colspan=2> Legend</th></tr>";
 		echo "<tr><td>RMAN Level 0 - OK</td> $DGREEN &nbsp; &nbsp; &nbsp;</td></tr>";
 		echo "<tr><td>RMAN Level 1 - OK</td> $GREEN &nbsp; &nbsp; &nbsp;</td></tr>";
 		echo "<tr><td>RMAN Archives - OK</td> $LGREEN &nbsp; &nbsp; &nbsp;</td></tr>";
