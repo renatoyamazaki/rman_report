@@ -45,46 +45,42 @@
 	// Caso seja para relatorio web
 	if ($mode == 1) {
 ?>
+<!doctype html>
 <html>
 
 <head>
 <title>Oracle - RMAN Backup Report</title>
-
-<!-- CSS -->
-<link rel="stylesheet" href="css/jquery.datepick.css" />
-<link rel="stylesheet" href="css/common.css" />
-<link rel="stylesheet" href="css/pure-min.css" />
-
-<!-- JS -->
-<script src="js/jquery-1.11.3.min.js"></script>
-<script src="js/jquery.auto-complete.min.js"></script>
-<script src="js/jquery.plugin.min.js"></script>
-<script src="js/jquery.datepick.min.js"></script>
-<script src="js/jquery.datepick-pt-BR.js"></script>
-<script src="js/sorttable.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?php
+	 require_once $_SERVER['DOCUMENT_ROOT'] . "/include/html/header.php";
+?>
 
 <script>
 $(function() {	
 	// campos de calendario
 	$('#cal1').datepick();
 });
+
 </script>
-	
 </head>
 
 <body>
 
 <div id ="layout">
 
+<?php
+        require_once $_SERVER['DOCUMENT_ROOT'] . "/include/html/menu.php";
+?>
+
 	<div id="main">
-		<div class="center">			
+		<div class="header">			
 			<h1>Rman Backup Report</h1>
 
 			<form class="pure-form pure-form-aligned"  name="" action="rman_report.php" method="post" >
 			<fieldset>
 
 			<div class="pure-control-group">
-				<label for="laudo">Data</label>
 				<input name="dt_rman" type="text" size="8" value="
 <?php 
 	if ($dt_rman === NULL)
@@ -94,7 +90,7 @@ $(function() {
 ?>
 " id="cal1">
 
-				<button type="submit" class="pure-button pure-button-primary">Consultar</button>
+				<button type="submit" class="pure-button pure-button-primary">Go</button>
 			</div>
 			<fieldset>
 			</form>
