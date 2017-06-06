@@ -4,10 +4,10 @@
 	header('Pragma: no-cache');
 	header('Expires: 0');
 
-	require_once "class/connection.php";
-	require_once "config/db.php";
-	require_once "class/database.php";
-	require_once "class/rmaninfo.php";
+	require_once "config.php";
+	require_once $APP_ROOT . "/include/class/connection.php";
+	require_once $APP_ROOT . "/include/class/database.php";
+	require_once $APP_ROOT . "/include/class/rmaninfo.php";
 
 
 	// PARAMETROS /////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <?php
-	 require_once $_SERVER['DOCUMENT_ROOT'] . "/include/html/header.php";
+	 require_once $APP_ROOT . "/include/html/header.php";
 ?>
 
 <script>
@@ -70,7 +70,7 @@ $(function() {
 <div id ="layout">
 
 <?php
-        require_once $_SERVER['DOCUMENT_ROOT'] . "/include/html/menu.php";
+        require_once $APP_ROOT . "/include/html/menu.php";
 ?>
 
 	<div id="main">

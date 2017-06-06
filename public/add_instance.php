@@ -4,8 +4,8 @@
 	header('Pragma: no-cache');
 	header('Expires: 0');
 
-	require_once "../class/connection.php";
-	require_once "db.php";
+	require_once "config.php";
+	require_once $APP_ROOT . "/include/class/connection.php";
 
 	/**
 	 * Returns the dbid from the instance
@@ -142,7 +142,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <?php
-	 require_once $_SERVER['DOCUMENT_ROOT'] . "/include/html/header.php";
+	 require_once $APP_ROOT . "/include/html/header.php";
 ?>
 </head>
 
@@ -153,7 +153,7 @@
 <div id="layout">
 
 <?php
-        require_once $_SERVER['DOCUMENT_ROOT'] . "/include/html/menu.php";
+        require_once $APP_ROOT . "/include/html/menu.php";
 ?>
 
         <div id="main">

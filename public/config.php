@@ -1,0 +1,7 @@
+<?php
+
+$APP_NAME = "ora";
+$APP_ROOT = $_SERVER['DOCUMENT_ROOT'] . "/" . $APP_NAME;
+$WEB_ROOT = $_SERVER['DOCUMENT_ROOT'];
+
+?>

@@ -4,10 +4,11 @@
 	header('Pragma: no-cache');
 	header('Expires: 0');
 
-	require_once "../class/connection.php";
+	require_once "config.php";
+	require_once $APP_ROOT . "/include/class/connection.php";
 
 	// Configuration file
-	$configFile = "db.php";
+	$configFile = $WEB_ROOT . "/db.php";
 
 
 

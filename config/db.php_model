@@ -1,8 +1,0 @@
-<?php
-
-define ('SERVER', 'database01.example.com');
-define ('INSTANCE', 'instance01');
-define ('USERNAME', 'database_username');
-define ('PASSWORD', 'database_password');
-
-?>

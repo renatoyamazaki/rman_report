@@ -1,5 +1,7 @@
 <?php
 
+require_once $WEB_ROOT . "/db.php";
+
 /**
  * Connection Class
  *

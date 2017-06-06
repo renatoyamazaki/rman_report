@@ -1,0 +1,96 @@
+
+/* DBDOC */
+
+table#content {
+    margin-left:auto;
+    margin-right:auto;
+    min-width: 1024px;
+}
+
+table#content tr td#content {
+    font-size: 12px;
+    margin 0;
+    line-height: 15px;
+}
+
+table#sortable {
+    margin-left:auto;
+    margin-right:auto;
+    min-width: 1024px;
+}
+
+table#sortable tr td a {
+    display: block;
+    text-decoration: none;
+    color: black;
+}
+
+table#sortable tr:hover td {
+	background:#c0c0c0;
+}
+
+
+/* RMAN REPORT */
+
+table#report {
+	border:1px solid #000;
+	border-spacing:0px;
+	border-collapse:collapse;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	width: 270px;
+	text-align: left;
+	font: 12px Sans-Serif, Arial, Verdana, Tahoma;
+}
+table#report td{
+	border:1px solid #D0D0D0;
+}
+table#report th.fixo{
+	width: 50px;
+}
+table#report tr td a {
+    display: block;
+    text-decoration: none;
+    color: black;
+}
+
+table#report tr td.b {
+	font-weight: bold;
+}
+
+table#report tr.green {
+	background-color: #00FF99;
+}
+
+table#report tr:hover td {
+	background:yellow;
+}
+table#report tr:hover td.red {
+	background:red;
+}
+table#report tr:hover td.lred {
+	background:#FF3300;
+}
+table#report th {
+	text-align: center;
+	border:1px solid #000;
+}
+table#report {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+table#legend {
+	margin-left: auto;
+	margin-right: auto;
+	font: 12px Sans-Serif, Arial, Verdana, Tahoma;
+}
+
+
+td.dgreen {     background-color: #006a3d; }
+td.green {      background-color: #00a760; }
+td.lgreen {     background-color: #91ccb4; }
+td.red {        background-color: #db4137; }
+td.blue {       background-color: #3752db; }
