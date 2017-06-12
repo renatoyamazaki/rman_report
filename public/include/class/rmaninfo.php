@@ -1,8 +1,10 @@
 <?php
 
 /**
-	Classe que contem as informaçoes basicas dos backups rman
- **/
+ *	Classe que contem as informaçoes basicas dos backups rman
+ *
+ *	
+ */
 class rmanInfo {
 	
 	public $sessionRecid;
@@ -60,8 +62,10 @@ class rmanInfo {
 }
 
 /**
-	Possui um vetor com varios objetos de rman 'rmanInfo'
- **/
+ *	Possui um vetor com varios objetos de rman 'rmanInfo'
+ *
+ *
+ */
 class rmanInfoSet {
 
 	public $rmanInfoArray = array();
@@ -95,9 +99,14 @@ class rmanInfoSet {
 
 }
 
+
+
+
 /**
-	Possui um vetor com varios objetos de conexao 'rmanInfoSet'
- **/
+ *	Possui um vetor com varios objetos de conexao 'rmanInfoSet'
+ *
+ *
+ */
 class dbInfo {
 
 	public $rmanInfoSetArray = array();
@@ -109,98 +118,248 @@ class dbInfo {
 	function __destruct () {
 	}
 	
-	// Retira informações de cada um dos bancos e coloca no objeto dbInfo
+
+	/**
+	 * Returns the last information on the catalog
+	 *
+	 * @param	object	$conn	Connection
+	 * @param	string	$dbid	DBID from instance
+	 * @return	array	$result	Array with indexed by 'last_backup' and 'last_recid'
+	 */
+	function last_info_catalog ($conn, $dbid) {
+
+		$result = array();
+
+		// Gets the most recent info from the catalog
+$SQL = <<<EOT
+SELECT session_recid,
+       to_char(start_time, 'DD/MM/YYYY HH24:MI:SS') AS timestart
+FROM rman_log
+WHERE start_time =
+    (SELECT max(start_time)
+     FROM rman_log
+     WHERE dbid = :dbid
+       AND status LIKE 'COMPLETED%')
+  AND dbid = :dbid
+  AND status LIKE 'COMPLETED%'
+EOT;
+
+		$stmt = oci_parse($conn->dbconn, $SQL);
+		oci_bind_by_name($stmt, ":dbid", $dbid);
+		oci_execute($stmt, OCI_DEFAULT);
+
+		// If its the first sincro, the values will be NULL
+		$row = oci_fetch_array($stmt, OCI_BOTH);
+		$last_backup = $row['TIMESTART'];
+		if ($last_backup === NULL)
+			$last_backup = '01/01/2001 00:00:00';
+		$last_recid = $row['SESSION_RECID'];
+		if ($last_recid === NULL)
+			$last_recid = '0';
+
+		$result = array( last_backup => $last_backup, last_recid => $last_recid );
+		
+		return $result;
+	}
+
+
+	/**
+	 * Gets all the info from the target instance
+	 *
+	 * @param	object	$conn		Connection
+	 * @param	string	$dbid		DBID from instance
+	 * @param	string	$last_backup	Last date info
+	 * @param	string	$last_recid	Last recid info
+	 * @return	void
+	 */
+	function get_info_instance ($conn, $dbid, $last_backup, $last_recid) {
+
+		// ID 375386.1
+		$SQL = "alter session set optimizer_mode=RULE";
+		$stmt = oci_parse($conn->dbconn, $SQL);
+		oci_execute($stmt, OCI_DEFAULT);
+
+$SQL = <<<EOT
+SELECT session_recid,
+       status,
+       to_char(min(start_time), 'DD/MM/YYYY HH24:MI:SS') AS timestart,
+       to_char(max(end_time), 'DD/MM/YYYY HH24:MI:SS') AS timeend,
+       command_id,
+       max(end_time) AS TIME
+FROM v\$rman_status
+WHERE session_recid <> :last_recid
+  AND start_time > to_date(:last_backup, 'DD/MM/YYYY HH24:MI:SS')
+GROUP BY session_recid,
+         status,
+         command_id
+ORDER BY 6 DESC
+EOT;
+
+		$stmt = oci_parse($conn->dbconn, $SQL);
+		oci_bind_by_name($stmt, ":last_recid", $last_recid);
+		oci_bind_by_name($stmt, ":last_backup", $last_backup);
+		oci_execute($stmt, OCI_DEFAULT);
+
+		// All the info collected goes to the object
+		while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false)
+			$this->rmanInfoSetArray[$dbid]->addRmanInfo($row['SESSION_RECID'], $row['STATUS'], $row['TIMESTART'], $row['TIMEEND'], $row['COMMAND_ID']);	
+	}
+
+
+	/**
+	 * Gets the log from the rman executions
+	 *
+	 * @param	object	$conn	Connection
+	 * @param	string	$dbid	DBID from instance
+	 * @return	void
+	 */
+	function get_log_instance ($conn, $dbid) {
+
+		// Iterates over the rman info objects created before
+		foreach ($this->rmanInfoSetArray[$dbid]->rmanInfoArray as $ri) {
+			$SQL = "select output from v\$rman_output where session_recid = :recid";
+			$stmt = oci_parse($conn->dbconn, $SQL);
+			oci_bind_by_name($stmt, ":recid", $ri->sessionRecid);
+			oci_execute($stmt, OCI_DEFAULT);
+
+			// In output goes all the log
+			// In output_error goes only the lines with error
+			$output = "";
+			$output_error = "";
+			while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false) {
+				if ((strpos($row['OUTPUT'], "RMAN-") !== FALSE ) or (strpos($row['OUTPUT'], "ORA-") !== FALSE) or (strpos($row['OUTPUT'], "ANS") !== FALSE ))
+					$output_error .= $row['OUTPUT'] . "\n";
+				$output .= $row['OUTPUT'] . "\n";
+			}
+			$this->rmanInfoSetArray[$dbid]->upLog($ri->sessionRecid, $output, $output_error);
+		}
+	}
+
+	/**
+	 * Updates last check info
+	 *
+	 * @param	object	$conn	Connection
+	 * @param	string	$dbid	DBID from instance
+	 * @return	bool		TRUE if registered with sucess, FALSE otherwise
+	 */
+	function update_last_check ($conn, $dbid) {
+
+		$SQL = "update ora_instance set LAST_CHECK = sysdate where dbid = :dbid";
+		$stmt = oci_parse($conn->dbconn, $SQL);
+		oci_bind_by_name($stmt, ":dbid", $dbid);
+		oci_execute($stmt, OCI_DEFAULT);
+
+		// Commit	
+		$r = oci_commit($conn->dbconn);
+		if (!$r) {
+ 			$e = oci_error($stmt);
+			oci_rollback($conn->dbconn);  // rollback changes
+			trigger_error(htmlentities($e['message']), E_USER_ERROR);
+			return false;
+		}
+		else 
+			return true;
+	}
+
+
+	/**
+	 * Gets rman info from each target instance
+	 *
+	 * @param	object	$connections	
+	 * @param	object	$catalog	
+	 * @return	void
+	 */
 	function getDbInfoInstances ($connections, $catalog) {
 
 		foreach ($connections->connArray as $dbid => $connection) {
 
-			// checa se a conexão é válida
-			if (!is_bool($connection->dbconn)) {
+			// Gets info from last executions of the catalog
+			$last_info = $this->last_info_catalog($catalog, $dbid);
+		
+			// Creates a new object to put the info from target dbid
+			$this->rmanInfoSetArray[$dbid] = new rmanInfoSet();
 			
-				// Verifica as informações mais recentes no catálogo
-				// referentes a instância de interesse
-				$SQL = "select session_recid, to_char(start_time, 'DD/MM/YYYY HH24:MI:SS') as timestart from rman_log where start_time = (select max(start_time) from rman_log where dbid = $dbid and status like 'COMPLETED%') and dbid = $dbid and status like 'COMPLETED%'";
-				$stmt = oci_parse($catalog->dbconn, $SQL);
-				oci_execute($stmt, OCI_DEFAULT);
-				// Coloca na variável o último timestamp de backup com sucesso
-				$row = oci_fetch_array($stmt, OCI_BOTH);
-				$last_backup = $row['TIMESTART'];
-				if ($last_backup === NULL)
-					$last_backup = '01/01/2001 00:00:00';
-				$last_recid = $row['SESSION_RECID'];
-				if ($last_recid === NULL)	// ?????
-					$last_recid = '0';
-				
-
-				// Utiliza a conexão com a instância que será feita a coleta de informações
-				$this->rmanInfoSetArray[$dbid] = new rmanInfoSet();	
-				// ID 375386.1
-				$stmt = oci_parse($connection->dbconn, "alter session set optimizer_mode=RULE");
-				oci_execute($stmt, OCI_DEFAULT);
-				$SQL = "select session_recid, status, to_char(min(start_time), 'DD/MM/YYYY HH24:MI:SS') as timestart, to_char(max(end_time), 'DD/MM/YYYY HH24:MI:SS') as timeend, command_id, max(end_time) as time from v\$rman_status where session_recid <> $last_recid and start_time > to_date('$last_backup', 'DD/MM/YYYY HH24:MI:SS') group by session_recid, status, command_id order by 6 desc";
-				$stmt = oci_parse($connection->dbconn, $SQL);
-				oci_execute($stmt, OCI_DEFAULT);
-				// Coloca informações coletadas no objeto
-				while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false)
-					$this->rmanInfoSetArray[$dbid]->addRmanInfo($row['SESSION_RECID'], $row['STATUS'], $row['TIMESTART'], $row['TIMEEND'], $row['COMMAND_ID']);
-				// realiza uma contagem de quantos objetos o vetor possui
-				$this->rmanInfoSetArray[$dbid]->countObj();
-
-				if ($this->rmanInfoSetArray[$dbid]->countObj != 0) {
-					// Coleta informações de log, iterando sobre cada objeto rmanInfo
-					foreach ($this->rmanInfoSetArray[$dbid]->rmanInfoArray as $ri) {
-							$SQL = "select output from v\$rman_output where session_recid = $ri->sessionRecid";
-							$stmt = oci_parse($connection->dbconn, $SQL);
-							oci_execute($stmt, OCI_DEFAULT);
-							//zera a variavel output
-							$output = "";
-							$output_error = "";
-							while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false) {
-								if ((strpos($row['OUTPUT'], "RMAN-") !== FALSE ) or (strpos($row['OUTPUT'], "ORA-") !== FALSE) or (strpos($row['OUTPUT'], "ANS") !== FALSE ))
-									$output_error .= $row['OUTPUT'] . "\n";
-								$output .= $row['OUTPUT'] . "\n";
-							}
-							$this->rmanInfoSetArray[$dbid]->upLog($ri->sessionRecid, $output, $output_error);
-
-					}
-				}
-
-				// coloca na tabela a ultima atualizacao de checagem de dados novos
-				$SQL = "update ora_instance set LAST_CHECK = sysdate where dbid = $dbid";
-				$stmt = oci_parse($catalog->dbconn, $SQL);
-				oci_execute($stmt, OCI_DEFAULT);				
-			}
+			// Populates the object
+			$this->get_info_instance($connection, $dbid, $last_info[last_backup], $last_info[last_recid]);
+			$this->get_log_instance($connection, $dbid);
+			
+			// Updates last check
+			$this->update_last_check($catalog, $dbid);
 		}
-	
-		// COMMIT
-		$stmt = oci_parse($catalog->dbconn, "commit");
-		oci_execute($stmt, OCI_DEFAULT);
-
 	}
-	
-	// Insere as informações do objeto dbInfo no catálogo
+
+
+	/**
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 */
 	function putDbInfoCatalog ($catalog) {
 	
 		foreach ($this->rmanInfoSetArray as $dbid => $risa) {
 					
 			foreach ($risa->rmanInfoArray as $ri) {
 			
-				$SQL = "select count(*) as count from rman_log where dbid = $dbid and session_recid = $ri->sessionRecid and start_time = to_date('$ri->timeStart', 'DD/MM/YYYY HH24:MI:SS')";
+$SQL = <<<EOT
+SELECT count(*) AS COUNT
+FROM rman_log
+WHERE dbid = :dbid
+  AND session_recid = :session_recid
+  AND start_time = to_date(:start_time, 'DD/MM/YYYY HH24:MI:SS')
+EOT;
 				$stmt = oci_parse($catalog->dbconn, $SQL);
+				oci_bind_by_name($stmt, ":dbid", $dbid);
+				oci_bind_by_name($stmt, ":session_recid", $ri->sessionRecid);
+				oci_bind_by_name($stmt, ":start_time", $ri->timeStart);
 				oci_execute($stmt, OCI_DEFAULT);
 				
 				// INSERE, SE NAO EXISTE REGISTRO (PK)
 				$row = oci_fetch_array($stmt, OCI_BOTH);
 				if ($row['COUNT'] == 0) {
-					$SQL = "insert into rman_log (DBID, SESSION_RECID, STATUS, START_TIME, END_TIME, COMMAND_ID, LOG, LOG_ERROR) values ($dbid, $ri->sessionRecid, '$ri->status', to_date('$ri->timeStart', 'DD/MM/YYYY HH24:MI:SS'), to_date('$ri->timeEnd', 'DD/MM/YYYY HH24:MI:SS'), '$ri->operation', :log, :log_error)";
+$SQL = <<<EOT
+INSERT INTO rman_log (DBID, SESSION_RECID, STATUS, START_TIME, END_TIME, COMMAND_ID, LOG, LOG_ERROR)
+VALUES (:dbid,
+        :session_recid,
+        :status,
+        to_date(:start_time, 'DD/MM/YYYY HH24:MI:SS'),
+        to_date(:end_time, 'DD/MM/YYYY HH24:MI:SS'),
+        :command_id,
+        :log,
+        :log_error)
+EOT;
 					$stmt = oci_parse($catalog->dbconn, $SQL);
+					oci_bind_by_name($stmt, ":dbid", $dbid);
+					oci_bind_by_name($stmt, ":session_recid", $ri->sessionRecid);
+					oci_bind_by_name($stmt, ":status", $ri->status);
+					oci_bind_by_name($stmt, ":start_time", $ri->timeStart);
+					oci_bind_by_name($stmt, ":end_time", $ri->timeEnd);
+					oci_bind_by_name($stmt, ":command_id", $ri->operation);
 					oci_bind_by_name($stmt, ":log", $ri->log);
 					oci_bind_by_name($stmt, ":log_error", $ri->log_error);
 					oci_execute($stmt, OCI_DEFAULT);
 				}
 				else {
-					$SQL = "update rman_log set STATUS = '$ri->status', COMMAND_ID = '$ri->operation' , END_TIME = to_date('$ri->timeEnd', 'DD/MM/YYYY HH24:MI:SS'), LOG = :log, LOG_ERROR = :log_error where DBID = $dbid and SESSION_RECID = $ri->sessionRecid and START_TIME = to_date('$ri->timeStart', 'DD/MM/YYYY HH24:MI:SS')";
+$SQL = <<<EOT
+UPDATE rman_log
+SET STATUS = :status,
+    COMMAND_ID = :command_id,
+    END_TIME = to_date(:end_time, 'DD/MM/YYYY HH24:MI:SS'),
+    LOG = :log,
+    LOG_ERROR = :log_error
+WHERE DBID = :dbid
+  AND SESSION_RECID = :session_recid
+  AND START_TIME = to_date(:start_time, 'DD/MM/YYYY HH24:MI:SS')
+EOT;
 					$stmt = oci_parse($catalog->dbconn, $SQL);
+					oci_bind_by_name($stmt, ":status", $ri->status);
+					oci_bind_by_name($stmt, ":command_id", $ri->operation);
+					oci_bind_by_name($stmt, ":end_time", $ri->timeEnd);
+					oci_bind_by_name($stmt, ":dbid", $dbid);
+					oci_bind_by_name($stmt, ":session_recid", $ri->sessionRecid);
+					oci_bind_by_name($stmt, ":start_time", $ri->timeStart);
 					oci_bind_by_name($stmt, ":log", $ri->log);
 					oci_bind_by_name($stmt, ":log_error", $ri->log_error);
 					oci_execute($stmt, OCI_DEFAULT);
@@ -218,45 +377,48 @@ class dbInfo {
 		if ($userDate === NULL)
 			$userDate = date("d/m/Y H:i:s", time()-86400);
 
-		$stmt = oci_parse($catalog->dbconn, "select DBID, SESSION_RECID, STATUS, to_char(START_TIME, 'DD/MM/YYYY HH24:MI:SS') as TIMESTART, to_char(END_TIME, 'DD/MM/YYYY HH24:MI:SS') as TIMEEND, COMMAND_ID, END_TIME from rman_log where START_TIME between to_date('$userDate', 'DD/MM/YYYY HH24:MI:SS') and to_date('$userDate', 'DD/MM/YYYY HH24:MI:SS')+1 order by 7 desc");
+$SQL = <<<EOT
+	SELECT DBID,
+       SESSION_RECID,
+       STATUS,
+       to_char(START_TIME, 'DD/MM/YYYY HH24:MI:SS') AS TIMESTART,
+       to_char(END_TIME, 'DD/MM/YYYY HH24:MI:SS') AS TIMEEND,
+       COMMAND_ID,
+       END_TIME
+FROM rman_log
+WHERE START_TIME BETWEEN to_date(:start_time, 'DD/MM/YYYY HH24:MI:SS') AND to_date(:start_time, 'DD/MM/YYYY HH24:MI:SS')+1
+ORDER BY 7 DESC
+EOT;
+
+		$stmt = oci_parse($catalog->dbconn, $SQL);
+		oci_bind_by_name($stmt, ":start_time", $userDate);
 		oci_execute($stmt, OCI_DEFAULT);
 		
 		while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false) {
 			$dbid = $row['DBID'];
                         // caso seja uma das instancias que ja estao no objeto 'databases'
                         if (array_key_exists($dbid, $databases->dbInstArray)) {
-				if (array_key_exists($dbid, $this->rmanInfoSetArray))
-					$this->rmanInfoSetArray[$dbid]->addRmanInfo($row['SESSION_RECID'], $row['STATUS'], $row['TIMESTART'], $row['TIMEEND'], $row['COMMAND_ID']);
-				else {
-					$this->rmanInfoSetArray[$dbid] = new rmanInfoSet();
-					$this->rmanInfoSetArray[$dbid]->addRmanInfo($row['SESSION_RECID'], $row['STATUS'], $row['TIMESTART'], $row['TIMEEND'], $row['COMMAND_ID']);
-				}
+				if (! array_key_exists($dbid, $this->rmanInfoSetArray))
+					$this->rmanInfoSetArray[$dbid] = new rmanInfoSet();				
+				$this->rmanInfoSetArray[$dbid]->addRmanInfo($row['SESSION_RECID'], $row['STATUS'], $row['TIMESTART'], $row['TIMEEND'], $row['COMMAND_ID']);
 				$this->rmanInfoSetArray[$dbid]->countObj();
 			}
 		}
 
 		$this->countMax();
-
-
-		// ultima data de atualização no objeto de databases
-		$stmt = oci_parse($catalog->dbconn, "select dbid, to_char(last_check, 'DD/MM/YYYY HH24:MI:SS') as last_check from ora_instance");
-		oci_execute($stmt, OCI_DEFAULT);
-		while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false) 
-			$databases->upInstanceLC($row['DBID'], $row['LAST_CHECK']);
-
 	}
 
 	function getRmanError ($connections, $dbid, $sessionrecid) {
 		
-		$stmt = oci_parse($connections->connArray[$dbid]->dbconn, "select output from v\$rman_output where session_recid = $sessionrecid and regexp_like(output, 'RMAN-|ORA-|ANS')");
-
+		$SQL = "select output from v\$rman_output where session_recid = :session_recid and regexp_like(output, 'RMAN-|ORA-|ANS')";
+		$stmt = oci_parse($connections->connArray[$dbid]->dbconn, $SQL);
+		oci_bind_by_name($stmt, ":session_recid", $sessionrecid);
 		oci_execute($stmt, OCI_DEFAULT);
 
 		while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false)
 			$errorLog .= $row['OUTPUT'] . "<br>";
 
 		$this->rmanInfoSetArray[$dbid]->addRmanError($sessionrecid, $errorLog);
-
 	}
 
 	function countMax () {
@@ -266,10 +428,33 @@ class dbInfo {
 				$this->countObjMax = $risa->countObj;
 	}
 
+	/**
+	 *
+	 *
+	 *
+	 */
 	function printDetail ($catalog, $dbid, $sessionrecid) {
 		
-		$SQL = "select b.instance, b.hostname, b.application, b.env, a.status, to_char(a.start_time, 'DD/MM/YYYY HH24:MI:SS') as timestart, to_char(a.end_time, 'DD/MM/YYYY HH24:MI:SS') as timeend, a.command_id, a.log from rman_log a, ora_instance b where a.dbid = b.dbid and a.dbid = $dbid and a.session_recid = $sessionrecid"; 
+$SQL = <<<EOT
+SELECT b.instance,
+       b.hostname,
+       b.application,
+       b.env,
+       a.status,
+       to_char(a.start_time, 'DD/MM/YYYY HH24:MI:SS') AS timestart,
+       to_char(a.end_time, 'DD/MM/YYYY HH24:MI:SS') AS timeend,
+       a.command_id,
+       a.log
+FROM rman_log a,
+     ora_instance b
+WHERE a.dbid = b.dbid
+  AND a.dbid = :dbid
+  AND a.session_recid = :session_recid
+EOT;
+
 		$stmt = oci_parse($catalog->dbconn, $SQL);
+		oci_bind_by_name($stmt, ":dbid", $dbid);
+		oci_bind_by_name($stmt, ":session_recid", $sessionrecid);
 		oci_execute($stmt, OCI_DEFAULT);
 		$row = oci_fetch_array($stmt, OCI_BOTH);
 
@@ -391,8 +576,10 @@ class dbInfo {
 		foreach ($this->rmanInfoSetArray as $dbid => $risa) {
 			foreach ($risa->rmanInfoArray as $ri) {
 				if (($ri->status != 'COMPLETED') and ($ri->status != 'RUNNING')) {
-					$SQL = "select log_error from rman_log where dbid = $dbid and session_recid = $ri->sessionRecid";
+					$SQL = "select log_error from rman_log where dbid = :dbid and session_recid = :session_recid";
 					$stmt = oci_parse($catalog->dbconn, $SQL);
+					oci_bind_by_name($stmt, ":dbid", $dbid);
+					oci_bind_by_name($stmt, ":session_recid", $ri->sessionRecid);
 					oci_execute($stmt, OCI_DEFAULT);
 					$row = oci_fetch_array($stmt, OCI_BOTH);
 

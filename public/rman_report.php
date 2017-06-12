@@ -34,7 +34,11 @@
 
 	// Conecta na base de catalogo, retirando as informacoes que sao pertinentes
 	$catalogo = new conn();
-	$stmt = oci_parse($catalogo->dbconn, "select a.hostname, a.instance, a.dbid, a.application, a.env, to_char(a.last_check, 'DD/MM/YYYY HH24:MI:SS') as last_check from ora_instance a order by a.application, a.hostname");
+//	$SQL = "select a.hostname, a.instance, a.dbid, a.application, a.env, to_char(a.last_check, 'DD/MM/YYYY HH24:MI:SS') as last_check from ora_instance a where active <> 0 order by a.application, a.hostname";
+$SQL = <<<EOT
+select a.hostname, a.instance, a.dbid, a.application, a.env, to_char(a.last_check, 'DD/MM/YYYY HH24:MI:SS') as last_check from ora_instance a where active <> 0 order by a.application, a.hostname
+EOT;
+	$stmt = oci_parse($catalogo->dbconn, $SQL);
 	oci_execute($stmt, OCI_DEFAULT);
 	// Adiciona cada database encontrada no catalogo no objeto da classe dbSet
 	while (($row = oci_fetch_array($stmt, OCI_BOTH)) != false) 
