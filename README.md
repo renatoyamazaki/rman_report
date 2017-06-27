@@ -45,25 +45,25 @@ $ git clone https://github.com/renatoyamazaki/rman_report.git
 * Move the source code dir to an http directory (for example /var/www/html/).
 Depends in what configuration you have of your apache, nginx, etc.
 ```
-$ mv rman_report /var/www/html/
+$ mv rman_report/public/ /var/www/html/rman_report
 ```
 
 * Change the 'config' dir permissions to 777. The install script will put a db.php 
 file in this directory.
 ```
-$ cd rman_report
+$ cd /var/www/html/rman_report
 $ chmod 777 config
 ```
 
 * Go to the install.php url, and put the details of the db connection. For example:
 ```
-http://SERVER_IP/config/install.php
+http://SERVER_IP/install.php
 ```
 
 * Register all the target instances:
 
 ```
-http://SERVER_IP/config/add_instance.php
+http://SERVER_IP/add_instance.php
 ```
 
 ## RMAN Script
