@@ -18,7 +18,18 @@
 
 
 		$catalogo = new conn();
-		$stmt = oci_parse($catalogo->dbconn, "select a.hostname, a.instance, a.dbid, a.application, a.env, to_char(a.last_check, 'DD/MM/YYYY HH24:MI:SS') as last_check from ora_instance a where a.dbid = $dbid");
+		$SQL = <<<EOT
+SELECT a.hostname,
+       a.instance,
+       a.dbid,
+       a.application,
+       a.env,
+       to_char(a.last_check, 'DD/MM/YYYY HH24:MI:SS') AS last_check
+FROM ora_instance a
+WHERE a.dbid = :dbid
+EOT;
+		$stmt = oci_parse($catalogo->dbconn, $SQL);
+		oci_bind_by_name($stmt, ":dbid", $dbid);
 		oci_execute($stmt, OCI_DEFAULT);
 
 		// adiciona cada database encontrada no catalogo no objeto da classe dbSet
